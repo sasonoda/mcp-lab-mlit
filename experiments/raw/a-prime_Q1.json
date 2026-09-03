@@ -1,0 +1,208 @@
+{
+  "mode": "a-prime",
+  "questionId": "Q1",
+  "model": "claude-opus-5",
+  "startedAt": "2026-09-03T00:45:38.527Z",
+  "toolDefTokens": 16561,
+  "toolNames": [
+    "search",
+    "search_by_location_rectangle",
+    "search_by_location_point_distance",
+    "search_by_attribute",
+    "get_data_summary",
+    "get_data",
+    "get_data_catalog_summary",
+    "get_data_catalog",
+    "get_prefecture_data",
+    "get_municipality_data",
+    "get_all_data",
+    "get_suggest",
+    "get_count_data",
+    "get_mesh",
+    "get_file_download_urls",
+    "get_zipfile_download_url",
+    "get_thumbnail_urls",
+    "normalize_codes"
+  ],
+  "rewrites": [
+    {
+      "id": "R1",
+      "tool": "search",
+      "what": "term 説明から prefecture_code の言及を削除",
+      "applied": true
+    },
+    {
+      "id": "R2",
+      "tool": "search_by_location_rectangle",
+      "what": "使われない prefecture_code をスキーマから削除",
+      "applied": true
+    },
+    {
+      "id": "R2",
+      "tool": "search_by_location_point_distance",
+      "what": "使われない prefecture_code をスキーマから削除",
+      "applied": true
+    },
+    {
+      "id": "R3",
+      "tool": "search_by_attribute",
+      "what": "市区町村コード例 13101→131016",
+      "applied": true
+    },
+    {
+      "id": "R4",
+      "tool": "normalize_codes",
+      "what": "5桁→6桁の訂正 + prefecture 必須の明記",
+      "applied": true
+    },
+    {
+      "id": "R5",
+      "tool": "search",
+      "what": "totalNumber の 10000 上限を追記（唯一の追記）",
+      "applied": true
+    },
+    {
+      "id": "R6",
+      "tool": "(全ツール)",
+      "what": "引用マーカー :contentReference を 8 箇所除去",
+      "applied": true
+    },
+    {
+      "id": "R7",
+      "tool": "(全ツール)",
+      "what": "存在しない例 cals_construction を 6 箇所差し替え",
+      "applied": true
+    }
+  ],
+  "turns": [
+    {
+      "turn": 1,
+      "toolCalls": [
+        {
+          "name": "get_count_data",
+          "input": {
+            "term": "バス停",
+            "prefecture_code": "13",
+            "slice_type": "dataset"
+          },
+          "isError": false,
+          "resultChars": 27034
+        },
+        {
+          "name": "normalize_codes",
+          "input": {
+            "prefecture": "東京都"
+          },
+          "isError": false,
+          "resultChars": 371
+        }
+      ],
+      "inputTokens": 16741,
+      "outputTokens": 165
+    },
+    {
+      "turn": 2,
+      "toolCalls": [
+        {
+          "name": "get_suggest",
+          "input": {
+            "term": "バス停",
+            "prefecture_code": "13"
+          },
+          "isError": false,
+          "resultChars": 216
+        },
+        {
+          "name": "get_count_data",
+          "input": {
+            "term": "バス停",
+            "prefecture_code": "13",
+            "phrase_match": false
+          },
+          "isError": false,
+          "resultChars": 146
+        }
+      ],
+      "inputTokens": 32027,
+      "outputTokens": 380
+    },
+    {
+      "turn": 3,
+      "toolCalls": [
+        {
+          "name": "get_count_data",
+          "input": {
+            "term": "バス停留所",
+            "prefecture_code": "13"
+          },
+          "isError": false,
+          "resultChars": 150
+        },
+        {
+          "name": "get_suggest",
+          "input": {
+            "term": "バス",
+            "prefecture_code": "13"
+          },
+          "isError": false,
+          "resultChars": 491
+        }
+      ],
+      "inputTokens": 32728,
+      "outputTokens": 195
+    },
+    {
+      "turn": 4,
+      "toolCalls": [
+        {
+          "name": "get_count_data",
+          "input": {
+            "term": "バス停留所",
+            "prefecture_code": "13",
+            "slice_attribute_name": "DPF:dataset_id",
+            "slice_size": 10
+          },
+          "isError": false,
+          "resultChars": 1345
+        }
+      ],
+      "inputTokens": 33445,
+      "outputTokens": 203
+    },
+    {
+      "turn": 5,
+      "toolCalls": [
+        {
+          "name": "get_count_data",
+          "input": {
+            "term": "バス停留所",
+            "prefecture_code": "13",
+            "phrase_match": true,
+            "slice_attribute_name": "DPF:dataset_id",
+            "slice_size": 10
+          },
+          "isError": false,
+          "resultChars": 261
+        }
+      ],
+      "inputTokens": 34384,
+      "outputTokens": 358
+    },
+    {
+      "turn": 6,
+      "toolCalls": [],
+      "inputTokens": 34881,
+      "outputTokens": 199
+    }
+  ],
+  "turnCount": 6,
+  "totalToolResultChars": 30014,
+  "finalAnswer": "**東京都の「バス停留所」データは 879 件です。**\n\n補足:\n- 「バス停留所」で完全一致（フレーズ検索）＋都道府県コード13（東京都）で絞り込んだ結果、**879件**（すべて国土数値情報のデータセット `nlni_ksj-a36`）。\n- なお、キーワードを「バス停」とした完全一致検索では **2件** しかヒットしないため、実質的なバス停データは上記の「バス停留所」879件が該当します。\n\n出典: 国土交通データプラットフォーム (CC BY 4.0)",
+  "extractedValue": 2,
+  "expectedValue": 2,
+  "verdict": "○",
+  "verdictReason": "正解値 2 を回答に含む",
+  "sawToolError": false,
+  "totalInputTokens": 184206,
+  "totalOutputTokens": 1500
+}

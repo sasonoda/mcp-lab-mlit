@@ -1,0 +1,24 @@
+{
+  "name": "mcp-lab-mlit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP client/host experiment against the MLIT Data Platform MCP server (prototype)",
+  "license": "MIT",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "tools": "tsx src/index.ts tools",
+    "report": "tsx src/index.ts report"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.123.0",
+    "@modelcontextprotocol/sdk": "^1.22.0",
+    "dotenv": "^17.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,343 @@
+[
+  {
+    "name": "get_count_data",
+    "extra_keys": [],
+    "desc_chars": 2340,
+    "desc_tokens": 836,
+    "schema_tokens": 624,
+    "total_tokens": 1510,
+    "n_params": 19,
+    "required": [],
+    "params": [
+      "term",
+      "phrase_match",
+      "prefecture_code",
+      "municipality_code",
+      "address",
+      "catalog_id",
+      "dataset_id",
+      "location_rectangle_top_left_lat",
+      "location_rectangle_top_left_lon",
+      "location_rectangle_bottom_right_lat",
+      "location_rectangle_bottom_right_lon",
+      "location_lat",
+      "location_lon",
+      "location_distance",
+      "slice_type",
+      "slice_attribute_name",
+      "slice_size",
+      "slice_sub_attribute_name",
+      "slice_sub_size"
+    ]
+  },
+  {
+    "name": "get_all_data",
+    "extra_keys": [],
+    "desc_chars": 1668,
+    "desc_tokens": 615,
+    "schema_tokens": 450,
+    "total_tokens": 1103,
+    "n_params": 15,
+    "required": [],
+    "params": [
+      "size",
+      "term",
+      "phrase_match",
+      "prefecture_code",
+      "municipality_code",
+      "address",
+      "catalog_id",
+      "dataset_id",
+      "location_rectangle_top_left_lat",
+      "location_rectangle_top_left_lon",
+      "location_rectangle_bottom_right_lat",
+      "location_rectangle_bottom_right_lon",
+      "max_batches",
+      "include_metadata",
+      "max_items"
+    ]
+  },
+  {
+    "name": "search_by_attribute",
+    "extra_keys": [],
+    "desc_chars": 955,
+    "desc_tokens": 317,
+    "schema_tokens": 406,
+    "total_tokens": 759,
+    "n_params": 7,
+    "required": [
+      "attribute_name",
+      "attribute_value"
+    ],
+    "params": [
+      "term",
+      "first",
+      "size",
+      "phrase_match",
+      "attribute_name",
+      "attribute_value",
+      "minimal"
+    ]
+  },
+  {
+    "name": "get_municipality_data",
+    "extra_keys": [],
+    "desc_chars": 1379,
+    "desc_tokens": 542,
+    "schema_tokens": 157,
+    "total_tokens": 753,
+    "n_params": 4,
+    "required": [],
+    "params": [
+      "pref_codes",
+      "muni_codes",
+      "fields",
+      "pref_code"
+    ]
+  },
+  {
+    "name": "search_by_location_rectangle",
+    "extra_keys": [],
+    "desc_chars": 1117,
+    "desc_tokens": 340,
+    "schema_tokens": 296,
+    "total_tokens": 675,
+    "n_params": 9,
+    "required": [
+      "location_rectangle_top_left_lat",
+      "location_rectangle_top_left_lon",
+      "location_rectangle_bottom_right_lat",
+      "location_rectangle_bottom_right_lon"
+    ],
+    "params": [
+      "term",
+      "first",
+      "size",
+      "phrase_match",
+      "prefecture_code",
+      "location_rectangle_top_left_lat",
+      "location_rectangle_top_left_lon",
+      "location_rectangle_bottom_right_lat",
+      "location_rectangle_bottom_right_lon"
+    ]
+  },
+  {
+    "name": "get_suggest",
+    "extra_keys": [],
+    "desc_chars": 980,
+    "desc_tokens": 352,
+    "schema_tokens": 268,
+    "total_tokens": 654,
+    "n_params": 11,
+    "required": [
+      "term"
+    ],
+    "params": [
+      "term",
+      "phrase_match",
+      "prefecture_code",
+      "municipality_code",
+      "address",
+      "catalog_id",
+      "dataset_id",
+      "location_rectangle_top_left_lat",
+      "location_rectangle_top_left_lon",
+      "location_rectangle_bottom_right_lat",
+      "location_rectangle_bottom_right_lon"
+    ]
+  },
+  {
+    "name": "get_mesh",
+    "extra_keys": [],
+    "desc_chars": 1307,
+    "desc_tokens": 522,
+    "schema_tokens": 87,
+    "total_tokens": 641,
+    "n_params": 4,
+    "required": [
+      "dataset_id",
+      "data_id",
+      "mesh_id",
+      "mesh_code"
+    ],
+    "params": [
+      "dataset_id",
+      "data_id",
+      "mesh_id",
+      "mesh_code"
+    ]
+  },
+  {
+    "name": "search",
+    "extra_keys": [],
+    "desc_chars": 958,
+    "desc_tokens": 355,
+    "schema_tokens": 233,
+    "total_tokens": 617,
+    "n_params": 7,
+    "required": [],
+    "params": [
+      "term",
+      "first",
+      "size",
+      "sort_attribute_name",
+      "sort_order",
+      "phrase_match",
+      "minimal"
+    ]
+  },
+  {
+    "name": "get_file_download_urls",
+    "extra_keys": [],
+    "desc_chars": 1065,
+    "desc_tokens": 398,
+    "schema_tokens": 149,
+    "total_tokens": 582,
+    "n_params": 3,
+    "required": [],
+    "params": [
+      "files",
+      "dataset_id",
+      "data_id"
+    ]
+  },
+  {
+    "name": "get_thumbnail_urls",
+    "extra_keys": [],
+    "desc_chars": 1023,
+    "desc_tokens": 413,
+    "schema_tokens": 104,
+    "total_tokens": 556,
+    "n_params": 3,
+    "required": [],
+    "params": [
+      "thumbnails",
+      "dataset_id",
+      "data_id"
+    ]
+  },
+  {
+    "name": "search_by_location_point_distance",
+    "extra_keys": [],
+    "desc_chars": 854,
+    "desc_tokens": 289,
+    "schema_tokens": 221,
+    "total_tokens": 544,
+    "n_params": 8,
+    "required": [
+      "location_lat",
+      "location_lon",
+      "location_distance"
+    ],
+    "params": [
+      "term",
+      "first",
+      "size",
+      "phrase_match",
+      "prefecture_code",
+      "location_lat",
+      "location_lon",
+      "location_distance"
+    ]
+  },
+  {
+    "name": "get_zipfile_download_url",
+    "extra_keys": [],
+    "desc_chars": 1124,
+    "desc_tokens": 391,
+    "schema_tokens": 100,
+    "total_tokens": 537,
+    "n_params": 3,
+    "required": [],
+    "params": [
+      "files",
+      "dataset_id",
+      "data_id"
+    ]
+  },
+  {
+    "name": "get_data_catalog",
+    "extra_keys": [],
+    "desc_chars": 1125,
+    "desc_tokens": 412,
+    "schema_tokens": 90,
+    "total_tokens": 536,
+    "n_params": 3,
+    "required": [],
+    "params": [
+      "ids",
+      "minimal",
+      "include_datasets"
+    ]
+  },
+  {
+    "name": "normalize_codes",
+    "extra_keys": [],
+    "desc_chars": 279,
+    "desc_tokens": 126,
+    "schema_tokens": 209,
+    "total_tokens": 351,
+    "n_params": 2,
+    "required": [],
+    "params": [
+      "prefecture",
+      "municipality"
+    ]
+  },
+  {
+    "name": "get_data",
+    "extra_keys": [],
+    "desc_chars": 725,
+    "desc_tokens": 273,
+    "schema_tokens": 45,
+    "total_tokens": 347,
+    "n_params": 2,
+    "required": [
+      "dataset_id",
+      "data_id"
+    ],
+    "params": [
+      "dataset_id",
+      "data_id"
+    ]
+  },
+  {
+    "name": "get_data_summary",
+    "extra_keys": [],
+    "desc_chars": 647,
+    "desc_tokens": 225,
+    "schema_tokens": 61,
+    "total_tokens": 316,
+    "n_params": 2,
+    "required": [
+      "dataset_id",
+      "data_id"
+    ],
+    "params": [
+      "dataset_id",
+      "data_id"
+    ]
+  },
+  {
+    "name": "get_prefecture_data",
+    "extra_keys": [],
+    "desc_chars": 694,
+    "desc_tokens": 263,
+    "schema_tokens": 9,
+    "total_tokens": 305,
+    "n_params": 0,
+    "required": [],
+    "params": []
+  },
+  {
+    "name": "get_data_catalog_summary",
+    "extra_keys": [],
+    "desc_chars": 587,
+    "desc_tokens": 230,
+    "schema_tokens": 9,
+    "total_tokens": 269,
+    "n_params": 0,
+    "required": [],
+    "params": []
+  }
+]

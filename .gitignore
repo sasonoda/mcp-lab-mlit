@@ -1,0 +1,21 @@
+# 鍵
+.env
+.env.*
+!.env.example
+docs/key.txt
+*.key
+
+# 依存・ビルド
+node_modules/
+dist/
+.venv/
+__pycache__/
+
+# 実行時の一時ファイル
+experiments/run.log
+
+# エディタ/ツールのローカル設定
+.claude/
+
+# 個人的な記述を含むため公開しない（ローカルには残す）
+docs/handoff-mcp-lab-mlit.md

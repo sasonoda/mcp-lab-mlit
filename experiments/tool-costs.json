@@ -1,0 +1,27 @@
+{
+  "model": "claude-opus-5",
+  "measuredAt": "2026-09-03T00:37:05.015Z",
+  "baseline": 8,
+  "perTool": {
+    "search": 1239,
+    "search_by_location_rectangle": 1370,
+    "search_by_location_point_distance": 1091,
+    "search_by_attribute": 1453,
+    "get_data_summary": 788,
+    "get_data": 809,
+    "get_data_catalog_summary": 695,
+    "get_data_catalog": 1085,
+    "get_prefecture_data": 714,
+    "get_municipality_data": 1371,
+    "get_all_data": 1891,
+    "get_suggest": 1260,
+    "get_count_data": 2550,
+    "get_mesh": 1206,
+    "get_file_download_urls": 1134,
+    "get_zipfile_download_url": 1087,
+    "get_thumbnail_urls": 1098,
+    "normalize_codes": 779
+  },
+  "allToolsTotal": 16758,
+  "perToolSum": 21620
+}

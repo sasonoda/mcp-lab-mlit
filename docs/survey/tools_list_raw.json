@@ -1,0 +1,686 @@
+{
+  "tools": [
+    {
+      "name": "search",
+      "description": "キーワードを使って検索する。検索結果の並べ替えや取得件数を設定することも可能。\n\n                使い方:\n                - キーワード検索（同義語も対象）: term=\"橋梁\"\n                - 完全一致で絞り込み: term=\"橋梁\", phrase_match=True\n                - ページング取得: first=0, size=50  ※APIの上限は一度に最大10,000件\n                - 並べ替え: sort_attribute_name=\"DPF:updated_at\", sort_order=\"dsc\"（降順）/ \"asc\"（昇順）\n                - 軽量レスポンス: minimal=True（主要フィールドのみ取得）\n\n                例:\n                - バス停を検索: term=\"バス停\"\n                - 橋梁を新しい更新順で取得: term=\"橋梁\", sort_attribute_name=\"DPF:updated_at\", sort_order=\"dsc\"\n                - ページ2相当を取得: term=\"道路\", first=50, size=50\n\n                注意:\n                - API仕様上、term=\"\"（空文字）でも検索は可能ですが、空間条件（矩形/円）やメタデータ条件を使った絞り込みは本ツールでは扱いません。\n                空間検索は「search_by_location_rectangle / search_by_location_point_distance」、\n                メタデータ検索は「search_by_attribute」を利用してください。\n                - sort_order は \"asc\" または \"dsc\" を指定してください。\n                - 大量件数を扱う場合はページング（first/size）を利用してください。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "type": "string",
+            "description": "検索キーワード。属性フィルタ(prefecture_code等)のみで検索する場合は空文字列\"\"を設定してください"
+          },
+          "first": {
+            "type": "integer",
+            "default": 0,
+            "description": "検索結果の開始位置(オフセット)。ページネーションに使用"
+          },
+          "size": {
+            "type": "integer",
+            "default": 50,
+            "description": "取得件数(最大500)。大量データの場合はget_all_dataを使用してください"
+          },
+          "sort_attribute_name": {
+            "type": "string",
+            "description": "ソート属性名 (例: 'DPF:year', 'DPF:title')"
+          },
+          "sort_order": {
+            "type": "string",
+            "description": "ソート順序: 'asc'(昇順) または 'dsc'(降順)"
+          },
+          "phrase_match": {
+            "type": "boolean",
+            "default": true,
+            "description": "フレーズマッチ。true=完全一致優先, false=部分一致"
+          },
+          "minimal": {
+            "type": "boolean",
+            "default": false,
+            "description": "最小限のフィールドのみ返す(id, title, lat, lon, dataset_id)"
+          }
+        }
+      }
+    },
+    {
+      "name": "search_by_location_rectangle",
+      "description": "矩形範囲と交差するデータを検索する。\n\n                使い方:\n                - 指定した矩形範囲（北西緯度経度と南東緯度経度）に含まれるデータを検索します。\n                - 検索語（term）を組み合わせて空間＋キーワード検索も可能です。\n\n                例:\n                - 東京都内の橋梁を検索:\n                term=\"橋梁\",\n                location_rectangle_top_left_lat=35.80,\n                location_rectangle_top_left_lon=139.55,\n                location_rectangle_bottom_right_lat=35.60,\n                location_rectangle_bottom_right_lon=139.85\n\n                - キーワードなしで矩形範囲のデータを取得:\n                term=\"\",\n                location_rectangle_top_left_lat=35.7,\n                location_rectangle_top_left_lon=139.6,\n                location_rectangle_bottom_right_lat=35.6,\n                location_rectangle_bottom_right_lon=139.7\n\n                注意:\n                - `location_rectangle_top_left_lat/lon` と `location_rectangle_bottom_right_lat/lon` の4点は必須。\n                - 北西（top_left）は右下（bottom_right）よりも緯度が高く、経度が低くなるように指定。\n                - termが空の場合でも矩形条件のみで検索可能。\n                - phrase_match=Trueで完全一致検索。\n                - size は 1回あたり最大10,000件（API制限あり）。\n                - 座標は世界測地系（WGS84）を使用。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "type": "string",
+            "description": "検索キーワード。位置のみで検索する場合は省略可能"
+          },
+          "first": {
+            "type": "integer",
+            "default": 0,
+            "description": "検索結果の開始位置"
+          },
+          "size": {
+            "type": "integer",
+            "default": 50,
+            "description": "取得件数(最大500)"
+          },
+          "phrase_match": {
+            "type": "boolean",
+            "default": true,
+            "description": "フレーズマッチモード"
+          },
+          "prefecture_code": {
+            "type": "string",
+            "description": "都道府県コード (例: '13'=東京都, '27'=大阪府)。normalize_codesツールで正規化できます。位置検索と組み合わせて結果を絞り込めます"
+          },
+          "location_rectangle_top_left_lat": {
+            "type": "number",
+            "description": "矩形範囲の左上緯度 (例: 35.6895 for 東京)"
+          },
+          "location_rectangle_top_left_lon": {
+            "type": "number",
+            "description": "矩形範囲の左上経度 (例: 139.6917 for 東京)"
+          },
+          "location_rectangle_bottom_right_lat": {
+            "type": "number",
+            "description": "矩形範囲の右下緯度"
+          },
+          "location_rectangle_bottom_right_lon": {
+            "type": "number",
+            "description": "矩形範囲の右下経度"
+          }
+        },
+        "required": [
+          "location_rectangle_top_left_lat",
+          "location_rectangle_top_left_lon",
+          "location_rectangle_bottom_right_lat",
+          "location_rectangle_bottom_right_lon"
+        ]
+      }
+    },
+    {
+      "name": "search_by_location_point_distance",
+      "description": "指定した地点と半径によって作成される円形範囲と交差するデータを検索する。\n\n                使い方:\n                - 緯度（lat）、経度（lon）、距離（メートル単位）を指定して円形範囲を作成。\n                - term（キーワード）を組み合わせることで空間＋テキスト検索も可能。\n\n                例:\n                - 東京駅から半径500m以内のバス停を検索:\n                term=\"バス停\", location_lat=35.681236, location_lon=139.767125, location_distance=500\n\n                - 半径5km以内の道路関連データ:\n                term=\"道路\", location_lat=35.68, location_lon=139.75, location_distance=5000\n\n                - term=\"\" で位置情報のみ検索:\n                term=\"\", location_lat=35.68, location_lon=139.75, location_distance=1000\n\n                注意:\n                - location_lat / location_lon / location_distance の3つは必須。\n                - location_distance の単位はメートル。\n                - WGS84座標系を使用。\n                - phrase_match=Trueで完全一致検索。\n                - 大きな半径を指定すると結果件数が増加するため、sizeで制御してください。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "type": "string",
+            "description": "検索キーワード。位置のみで検索する場合は省略可能"
+          },
+          "first": {
+            "type": "integer",
+            "default": 0,
+            "description": "検索結果の開始位置"
+          },
+          "size": {
+            "type": "integer",
+            "default": 50,
+            "description": "取得件数(最大500)"
+          },
+          "phrase_match": {
+            "type": "boolean",
+            "default": true,
+            "description": "フレーズマッチモード"
+          },
+          "prefecture_code": {
+            "type": "string",
+            "description": "都道府県コード。normalize_codesで正規化可能"
+          },
+          "location_lat": {
+            "type": "number",
+            "description": "中心地点の緯度 (例: 35.6812 for 東京駅)"
+          },
+          "location_lon": {
+            "type": "number",
+            "description": "中心地点の経度 (例: 139.7671 for 東京駅)"
+          },
+          "location_distance": {
+            "type": "number",
+            "description": "検索半径(メートル単位)。例: 1000 = 半径1km圏内"
+          }
+        },
+        "required": [
+          "location_lat",
+          "location_lon",
+          "location_distance"
+        ]
+      }
+    },
+    {
+      "name": "search_by_attribute",
+      "description": "メタデータ項目を用いて検索する。例えば、カタログ名、データセット名、都道府県、市区町村等を設定して検索することが可能。\n                属性フィルタで検索（GraphQL公式形のみ）: attributeFilter { attributeName: \"DPF:...\", is: <value> }。operatorは常に is。\n\n                使い方:\n                - 属性（attribute_name）と値（attribute_value）を指定してメタデータ検索を行う。\n                - キーワード（term）を併用して、より細かい条件指定も可能。\n\n                例:\n                - 特定データセット内の検索:\n                attribute_name=\"DPF:dataset_id\", attribute_value=\"mlit-001\", term=\"橋梁\"\n\n                - 東京都に属するデータ:\n                attribute_name=\"DPF:prefecture_code\", attribute_value=\"13\"\n\n                - データカタログ単位で検索:\n                attribute_name=\"DPF:catalog_id\", attribute_value=\"mlit-cat-001\", term=\"\"\n\n                注意:\n                - attribute_name には DPF:prefix を含む正式属性名を指定してください（例: \"DPF:dataset_id\"）。\n                - attribute_value の型は文字列または数値。operator は常に \"is\" 固定。\n                - term=\"\" の場合でも属性条件のみで検索可能。\n                - minimal=True を指定すると軽量レスポンスになります。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "type": "string",
+            "description": "検索キーワード。属性のみで検索する場合は空文字列\"\"または省略可能"
+          },
+          "first": {
+            "type": "integer",
+            "default": 0,
+            "description": "検索結果の開始位置"
+          },
+          "size": {
+            "type": "integer",
+            "default": 50,
+            "description": "取得件数(最大500)"
+          },
+          "phrase_match": {
+            "type": "boolean",
+            "default": true,
+            "description": "フレーズマッチモード"
+          },
+          "attribute_name": {
+            "type": "string",
+            "description": "属性名(必須)。ネームスペースプレフィックス付き。\n                            例:\n                            - DPF:dataset_id (データセットID)\n                            - DPF:prefecture_code (都道府県コード)\n                            - DPF:municipality_code (市区町村コード)\n                            - DPF:year (年度)\n                            - DPF:catalog_id (カタログID)\n                            - RSDB:tenken.nendo (点検年度 - 道路施設)\n                            - PLATEAU:... (PLATEAU関連属性)\n\n                            プレフィックスがない場合、一般的な属性には自動的にDPF:が追加されます"
+          },
+          "attribute_value": {
+            "type": "string",
+            "description": "属性値(必須)。'is'オペレータで完全一致検索します。\n                            例:\n                            - dataset_id: 'mlit-plateau-2023'\n                            - prefecture_code: '13' (東京都)\n                            - year: '2023'\n                            - municipality_code: '13101' (千代田区)\n\n                            数値コードの場合、normalize_codesで正規化してから使用することを推奨"
+          },
+          "minimal": {
+            "type": "boolean",
+            "default": false,
+            "description": "最小限のフィールドのみ返す"
+          }
+        },
+        "required": [
+          "attribute_name",
+          "attribute_value"
+        ]
+      }
+    },
+    {
+      "name": "get_data_summary",
+      "description": "データセットIDとデータIDを用いて、基本情報（データID、タイトル）を取得する。\n\n                使い方:\n                - すでに dataSetID / dataID を把握している場合に、軽量にタイトル等の基本情報だけ取得します。\n                - 検索結果から拾った id を入れて確認・プレビュー用途に最適。\n\n                例:\n                - タイトルだけ確認したい:\n                dataset_id=\"cals_construction\", data_id=\"<searchで取得したid>\"\n\n                - 詳細取得前の事前チェック:\n                dataset_id=\"mlit-001\", data_id=\"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\"\n\n                注意:\n                - data_id は検索API（search）の結果で得られる DataClass.id を使用してください。\n                - 指定したIDに一致しない場合、totalNumber=0 となります（結果なし）。\n                - サマリ用途のため、詳細な付帯情報が必要な場合は get_data を使用してください。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "description": "データセットID。searchツールの結果から取得"
+          },
+          "data_id": {
+            "type": "string",
+            "description": "データID。searchツールの結果から取得"
+          }
+        },
+        "required": [
+          "dataset_id",
+          "data_id"
+        ]
+      }
+    },
+    {
+      "name": "get_data",
+      "description": "データセットIDとデータIDを用いて、データの詳細情報を取得する。\n\n                使い方:\n                - 検索API（search）で拾った id を使って、対象データの詳細（title 以外の各種メタ情報や関連フィールド）を取得。\n                - すでに対象が確定している場合、検索よりも効率的に必要情報へアクセスできます。\n\n                例:\n                - 既知IDで詳細取得:\n                dataset_id=\"cals_construction\", data_id=\"<searchで取得したid>\"\n\n                - データセット内の特定データを直接参照:\n                dataset_id=\"mlit-001\", data_id=\"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx\"\n\n                注意:\n                - 引数は GraphQL の data(dataSetID:, dataID:) に対応しています。\n                - data_id は search の結果（DataClass.id）を使用してください。\n                - 存在しないIDを指定した場合、totalNumber=0 となり結果は返りません。\n                - 詳細項目は MLIT DPF のスキーマに依存します（必要な項目はクライアント側でフィールド選択推奨）。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "description": "データセットID"
+          },
+          "data_id": {
+            "type": "string",
+            "description": "データID"
+          }
+        },
+        "required": [
+          "dataset_id",
+          "data_id"
+        ]
+      }
+    },
+    {
+      "name": "get_data_catalog_summary",
+      "description": "データカタログ・データセットの基本情報（ID、タイトル）を取得する。\n\n                使い方:\n                - すべてのカタログのIDとタイトル一覧を取得: 引数なし（内部的に IDs=null 相当）\n                - 特定カタログだけの基本情報を取得: 「get_data_catalog」を minimal=True で使うか、こちらのサマリーを利用\n\n                例:\n                - 全カタログのID/タイトル:\n                （引数なしで呼び出し）\n\n                - 特定ID群のみの概要を見たい（軽量）:\n                get_data_catalog を minimal=True, ids=[\"cals\",\"rsdb\"] で代用\n\n                注意:\n                - 返却内容はID/タイトル中心の軽量情報です。詳細なメタデータやデータセット一覧が必要な場合は「get_data_catalog」を使用してください。\n                - 公式APIでは IDs=null を指定すると全件取得になります（本ツールは内部でこの挙動に合わせています）。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "get_data_catalog",
+      "description": "データカタログ・データセットの詳細情報を取得する。\n\n                使い方:\n                - すべてのカタログの詳細を取得（重い）: ids を指定しない（内部的に IDs=null 相当）、include_datasets=True\n                - 特定カタログだけ取得（推奨）: ids=[\"cals\",\"rsdb\"] のように配列で指定\n                - 軽量にID/タイトル等だけ取得: minimal=True\n                - データセット一覧や件数も取得: include_datasets=True（データセットのメタデータ定義・件数が取得可能）\n\n                例:\n                - 全カタログのID/タイトルのみ（軽量）:\n                minimal=True, include_datasets=False\n\n                - 特定カタログ（cals, rsdb）の詳細 + データセット一覧:\n                ids=[\"cals\",\"rsdb\"], minimal=False, include_datasets=True\n\n                - 単一カタログのメタ情報だけ（datasets不要）:\n                ids=[\"mlit_plateau\"], minimal=False, include_datasets=False\n\n                注意:\n                - 公式仕様では `dataCatalog(IDs: [String])` で、IDs に null を渡すと全カタログが返ります。IDを指定すると対象のみ取得されます。\n                - `include_datasets=True` の場合、各カタログ配下の `datasets` 情報（メタデータ定義、データ件数など）も取得します。大量になるため必要に応じてオフにしてください。\n                - `minimal=True` は主要フィールド中心の軽量レスポンスです。詳細が必要な場合は False にしてください。\n                - 返るフィールドは `DataCatalogClass` に準拠します（title, description, publisher, modified など多数を含み、datasets も持ちます）。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "カタログIDの配列。nullの場合は全カタログを取得"
+          },
+          "minimal": {
+            "type": "boolean",
+            "default": false,
+            "description": "最小限の情報のみ返す"
+          },
+          "include_datasets": {
+            "type": "boolean",
+            "default": true,
+            "description": "配下のデータセット情報も含める"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_prefecture_data",
+      "description": "都道府県名・都道府県コード一覧を取得する。\n\n                使い方:\n                - 引数なしで47都道府県の一覧を取得（コード/名称）。\n                - 軽量にコードと正式名称のみ取得、または必要に応じて name_short / hiragana / romaji などをクライアント側でフィールド選択。\n\n                例:\n                - コードと名称だけ取得:\n                （引数なしで呼び出し）\n\n                - かな・ローマ字も含めて取得（クライアントのフィールド指定例）:\n                prefecture { code_as_string name hiragana romaji }\n\n                注意:\n                - GraphQL定義: `prefecture: [PrefectureClass]`。パラメータはありません（常に全都道府県を返します）。\n                - 主なフィールド: code（数値）, code_as_string（2桁文字列）, name（正式名）, name_short, hiragana, romaji, used_from / used_until。\n                - 公式コードは2桁（先頭ゼロ付き）。アプリで文字列コードが必要な場合は `code_as_string` を利用してください。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "get_municipality_data",
+      "description": "市区町村名・市区町村コード一覧を取得する。\n\n                使い方:\n                - フィルタなし（既定）: 全国すべての市区町村を返します（大量件数）。\n                - 都道府県で絞り込み: pref_codes=[\"13\"] のように都道府県コードを指定（複数可）。\n                - 市区町村コードで絞り込み: muni_codes=[\"13101\",\"13102\"] のように6桁コードを指定（複数可）。\n                - 取得フィールドを最小化: fields=[\"code_as_string\",\"name\"] のように必要フィールドだけ指定（クライアント最適化）。\n\n                例:\n                - 全国の市区町村（コード/名称のみ）:\n                pref_codes=[], muni_codes=[], fields=[\"code_as_string\",\"name\"]\n\n                - 東京都の市区町村一覧:\n                pref_codes=[\"13\"], fields=[\"code_as_string\",\"prefecture_code\",\"name\",\"katakana\"]\n\n                - 特定の市区町村コードを直接取得:\n                muni_codes=[\"13101\",\"13102\"], fields=[\"code_as_string\",\"name\",\"romaji\"]\n\n                注意:\n                - GraphQL仕様: `municipalities(muniCodes:[Any], prefCodes:[Any]): [MunicipalityClass]`。\n                パラメータ未指定時は**全件**を返します（大量になるため fields での軽量化推奨）。:contentReference[oaicite:1]{index=1}\n                - コードは数値/文字列どちらでも指定可能ですが、アプリ側で扱いやすいのは **6桁の文字列** `code_as_string` です（例: \"13101\"）。:contentReference[oaicite:2]{index=2}\n                - 返却クラス `MunicipalityClass` には、`name`（郡名/市区町村名/政令市区名を組み合わせた正式名称）、`katakana`、`romaji`、`prefecture_code`、および有効期間（`used_from`/`used_until`）等が含まれます。:contentReference[oaicite:3]{index=3}\n                - 政令指定都市の区は**独立したエントリ**として返ります（例: 札幌市中央区 など）。:contentReference[oaicite:4]{index=4}",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pref_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "都道府県コードの配列 (例: ['13', '27'])"
+          },
+          "muni_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "市区町村コードの配列 (例: ['13101', '13102'])"
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "取得するフィールド名の配列。デフォルト: ['code_as_string', 'prefecture_code', 'name']"
+          },
+          "pref_code": {
+            "type": "string",
+            "description": "単一都道府県コード(後方互換性用)。pref_codesの使用を推奨"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_all_data",
+      "description": "条件に当てはまる大量のデータを取得する。\n\n                使い方:\n                - 大量件数をバッチで取得します。内部的に GraphQL `getAllData` を使用し、返却された `nextDataRequestToken` を用いて次バッチを自動で取得します。\n                - 絞り込みは `term` / `phrase_match` と、属性（`catalog_id`, `dataset_id`, `prefecture_code`, `municipality_code`, `address`）や矩形範囲を組み合わせて指定できます。\n                - 1回のバッチ件数は `size`（API上限は1000）。本ツールの既定は `size=1000`（最大値）で、`max_batches` または `max_items` で総取得量を制御します。\n                - メタデータが不要な場合は `include_metadata=False` で転送量を削減できます。\n\n                例:\n                - データセット単位で全件取得（メタデータ付き）:\n                term=\"\", dataset_id=\"mlit-001\", size=1000, max_batches=10, include_metadata=True\n\n                - カタログIDと矩形で範囲取得（東京都心部の例）:\n                term=\"\", catalog_id=\"dimaps\",\n                location_rectangle_top_left_lat=35.80,  location_rectangle_top_left_lon=139.55,\n                location_rectangle_bottom_right_lat=35.60, location_rectangle_bottom_right_lon=139.85,\n                size=1000, max_batches=5\n\n                - 都道府県コードのみで全件走査:\n                term=\"\", prefecture_code=\"13\", size=1000, max_items=5000\n\n                注意:\n                - API仕様上、`locationFilter`（矩形など）**単独では検索不可**です。必ず `term` または `attributeFilter`（本ツールでは `catalog_id` / `dataset_id` / `prefecture_code` / `municipality_code` / `address` に相当）を併用してください。\n                - 次バッチ取得時は `nextDataRequestToken` を使用し、**他の条件は無視**されます（ツール側で自動処理）。データが空になった時点で取得を停止します。\n                - `size` のAPI上限は1000です（本ツールの既定値は1000）。大量取得時は `max_batches` / `max_items` を併用して制御してください。\n                - 座標は WGS84。矩形は「北西（top_left）→南東（bottom_right）」の順で指定してください。\n                - `include_metadata=False` にすると `id`/`title` 中心の軽量レスポンスになります。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer",
+            "default": 1000,
+            "description": "1回のリクエストで取得する件数(最大1000)。大量データの場合はバッチ処理で自動的に複数回リクエストされます"
+          },
+          "term": {
+            "type": "string",
+            "description": "検索キーワード。属性フィルタのみの場合は空文字列\"\"または省略"
+          },
+          "phrase_match": {
+            "type": "boolean",
+            "description": "フレーズマッチモード"
+          },
+          "prefecture_code": {
+            "type": "string",
+            "description": "都道府県コード。normalize_codesで正規化済みのコードを使用してください"
+          },
+          "municipality_code": {
+            "type": "string",
+            "description": "市区町村コード(5桁)。例: '13101'=千代田区"
+          },
+          "address": {
+            "type": "string",
+            "description": "住所による検索。都道府県名や市区町村名を含む文字列"
+          },
+          "catalog_id": {
+            "type": "string",
+            "description": "カタログID。get_data_catalog_summaryで確認可能"
+          },
+          "dataset_id": {
+            "type": "string",
+            "description": "データセットID"
+          },
+          "location_rectangle_top_left_lat": {
+            "type": "number",
+            "description": "矩形範囲の左上緯度"
+          },
+          "location_rectangle_top_left_lon": {
+            "type": "number",
+            "description": "矩形範囲の左上経度"
+          },
+          "location_rectangle_bottom_right_lat": {
+            "type": "number",
+            "description": "矩形範囲の右下緯度"
+          },
+          "location_rectangle_bottom_right_lon": {
+            "type": "number",
+            "description": "矩形範囲の右下経度"
+          },
+          "max_batches": {
+            "type": "integer",
+            "default": 20,
+            "description": "最大バッチ処理回数。20回 × size(1000) = 最大20,000件まで取得可能"
+          },
+          "include_metadata": {
+            "type": "boolean",
+            "default": true,
+            "description": "メタデータを含めるか。falseにするとレスポンスサイズが小さくなります"
+          },
+          "max_items": {
+            "type": "integer",
+            "description": "取得する最大アイテム数の上限。設定するとmax_batchesより優先されます"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_suggest",
+      "description": "キーワード検索の候補を表示する。\n\n                使い方:\n                - 入力中の文字列（term）から、上位のキーワード候補を返します。候補は `name`（候補語）と `cnt`（該当件数）を含みます。\n                - 完全一致寄りにしたい場合は phrase_match=True を指定します。\n                - カタログ/データセット等で範囲を絞って候補を出すことも可能です（search と同様に attributeFilter 相当を利用）。\n\n                例:\n                - 単純サジェスト（全データ対象）:\n                term=\"川\", phrase_match=True\n                → 上位候補（例: \"川河川\", \"河川\", ...）が name/cnt で返る。\n\n                - 特定データセット内でのサジェスト:\n                term=\"川\", phrase_match=True, dataset_id=\"cals_construction\"\n\n                - カタログ単位でのサジェスト:\n                term=\"橋\", catalog_id=\"dimaps\"\n\n                注意:\n                - term は必須です（空文字は不可）。\n                - 本APIは GraphQL `suggest(term, phraseMatch, attributeFilter?)` を使用します。属性での絞り込みは\n                本ツールの引数（catalog_id / dataset_id / prefecture_code / municipality_code / address）を\n                内部で attributeFilter にマッピングして行います。\n                - 返却される候補は name と cnt を含む配列です（例は公式サンプル参照）。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "type": "string",
+            "description": "検索キーワードの一部。例: 'バス' → 'バス停', 'バスロケ' などを提案"
+          },
+          "phrase_match": {
+            "type": "boolean",
+            "description": "フレーズマッチモード"
+          },
+          "prefecture_code": {
+            "type": "string",
+            "description": "都道府県コードで絞り込み"
+          },
+          "municipality_code": {
+            "type": "string",
+            "description": "市区町村コードで絞り込み"
+          },
+          "address": {
+            "type": "string",
+            "description": "住所で絞り込み"
+          },
+          "catalog_id": {
+            "type": "string",
+            "description": "カタログIDで絞り込み"
+          },
+          "dataset_id": {
+            "type": "string",
+            "description": "データセットIDで絞り込み"
+          },
+          "location_rectangle_top_left_lat": {
+            "type": "number",
+            "description": "矩形範囲の左上緯度"
+          },
+          "location_rectangle_top_left_lon": {
+            "type": "number",
+            "description": "矩形範囲の左上経度"
+          },
+          "location_rectangle_bottom_right_lat": {
+            "type": "number",
+            "description": "矩形範囲の右下緯度"
+          },
+          "location_rectangle_bottom_right_lon": {
+            "type": "number",
+            "description": "矩形範囲の右下経度"
+          }
+        },
+        "required": [
+          "term"
+        ]
+      }
+    },
+    {
+      "name": "get_count_data",
+      "description": "特定のデータセットに含まれるデータや、指定した範囲、日付など、指定した検索条件に一致するデータの件数を取得する。分類ごとの集計も可能。\n\n                使い方:\n                - キーワード / メタデータ / 空間条件を組み合わせて、件数のみを高速に把握できます。\n                - 集計の切り口は `slice_type` で指定:\n                - \"dataset\": カタログ→データセットの2段階で件数を返す（全カタログ/全データセットの分布を俯瞰）\n                - \"attribute\": 任意属性ごとの上位出現値を `slice_size` 件まで取得（最大50）。必要なら `slice_sub_attribute_name` で下位分類も可能。\n                - 空間条件（矩形/円）は `location_*` 引数により内部で `locationFilter` に変換。\n                - 属性条件は `catalog_id` / `dataset_id` / `prefecture_code` / `municipality_code` / `address` などを内部で `attributeFilter` に変換。\n\n                例:\n                - キーワード「橋梁」をデータセット別に件数集計:\n                term=\"橋梁\", slice_type=\"dataset\"\n\n                - 都道府県別トップ10 + その下でデータセット別内訳:\n                term=\"\", slice_type=\"attribute\",\n                slice_attribute_name=\"DPF:prefecture_code\", slice_size=10,\n                slice_sub_attribute_name=\"DPF:dataset_id\", slice_sub_size=10\n\n                - 矩形範囲（東京都心部）× カタログIDで件数:\n                term=\"\", catalog_id=\"dimaps\",\n                location_rectangle_top_left_lat=35.80,  location_rectangle_top_left_lon=139.55,\n                location_rectangle_bottom_right_lat=35.60, location_rectangle_bottom_right_lon=139.85,\n                slice_type=\"attribute\", slice_attribute_name=\"DPF:dataset_id\", slice_size=20\n\n                - 円範囲（東京駅 半径500m）× データセット内件数:\n                term=\"\", dataset_id=\"cals_construction\",\n                location_lat=35.681236, location_lon=139.767125, location_distance=500,\n                slice_type=\"attribute\", slice_attribute_name=\"DPF:title\", slice_size=10\n\n                注意:\n                - 公式仕様上、`locationFilter`（空間条件）**のみでは検索不可**。必ず `term` か `attributeFilter`（本ツールでは catalog_id / dataset_id / prefecture_code / municipality_code / address 等）を併用してください。\n                - `slice_size` の最大は **50**。上位出現値のみが返却され、それ以外は省略されます。上位分類の `dataCount` には下位分類で表示されない分も含まれます。\n                - `attributeFilter` は `is/similar/gte/gt/lte/lt` に対応し、`AND` / `OR` でネスト結合が可能（本ツールでは単純条件を主にサポート）。\n                - `locationFilter` は `rectangle` / `geoDistance` のほか `union` / `intersection` に対応。ただし **同クラス内の他メンバーと同時利用不可**、かつ **入れ子（ネスト）不可**。\n                - 座標は WGS84。矩形は「北西(top_left)→南東(bottom_right)」の順で指定。\n                - パフォーマンス観点から、まず `get_count_data` でボリューム見積り → 必要に応じて `get_all_data` で実データ取得が推奨。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "term": {
+            "type": "string",
+            "description": "検索キーワード。属性フィルタのみの場合は省略可能"
+          },
+          "phrase_match": {
+            "type": "boolean",
+            "description": "フレーズマッチモード"
+          },
+          "prefecture_code": {
+            "type": "string",
+            "description": "都道府県コードで絞り込み"
+          },
+          "municipality_code": {
+            "type": "string",
+            "description": "市区町村コードで絞り込み"
+          },
+          "address": {
+            "type": "string",
+            "description": "住所で絞り込み"
+          },
+          "catalog_id": {
+            "type": "string",
+            "description": "カタログIDで絞り込み"
+          },
+          "dataset_id": {
+            "type": "string",
+            "description": "データセットIDで絞り込み。集計対象の指定に必須"
+          },
+          "location_rectangle_top_left_lat": {
+            "type": "number",
+            "description": "矩形範囲の左上緯度"
+          },
+          "location_rectangle_top_left_lon": {
+            "type": "number",
+            "description": "矩形範囲の左上経度"
+          },
+          "location_rectangle_bottom_right_lat": {
+            "type": "number",
+            "description": "矩形範囲の右下緯度"
+          },
+          "location_rectangle_bottom_right_lon": {
+            "type": "number",
+            "description": "矩形範囲の右下経度"
+          },
+          "location_lat": {
+            "type": "number",
+            "description": "中心地点の緯度(円形範囲検索用)"
+          },
+          "location_lon": {
+            "type": "number",
+            "description": "中心地点の経度(円形範囲検索用)"
+          },
+          "location_distance": {
+            "type": "number",
+            "description": "検索半径(メートル単位、円形範囲検索用)"
+          },
+          "slice_type": {
+            "type": "string",
+            "description": "集計タイプ:\n                        - 'attribute': 属性別に集計(最も一般的)\n                        - 'dataset': データセット別に集計\n                        省略時は属性指定があれば自動的に'attribute'になります"
+          },
+          "slice_attribute_name": {
+            "type": "string",
+            "description": "集計する属性名(ネームスペース付き)。\n                        例:\n                        - 'DPF:year' → 年度別集計\n                        - 'DPF:prefecture_code' → 都道府県別集計\n                        - 'RSDB:tenken.nendo' → 点検年度別集計\n\n                        指定すると自動的にslice_type='attribute'になります"
+          },
+          "slice_size": {
+            "type": "integer",
+            "description": "集計結果の最大件数(1-50)。上位N件のみ取得したい場合に指定"
+          },
+          "slice_sub_attribute_name": {
+            "type": "string",
+            "description": "2段階目の集計属性名。\n                        例: slice_attribute_name='DPF:prefecture_code', slice_sub_attribute_name='DPF:year'\n                        → 都道府県別 × 年度別のクロス集計"
+          },
+          "slice_sub_size": {
+            "type": "integer",
+            "description": "2段階目の集計結果の最大件数"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_mesh",
+      "description": "メッシュに含まれるデータを取得する。\n\n                使い方:\n                - 事前に `search` API で対象データを特定し、レスポンスの `dataset_id`（=dataSetID）、`id`（=dataID）、\n                および `meshes[].id`（=meshID）を取得します。その上で、本APIに `meshCode`（メッシュコード）を指定して該当メッシュのオブジェクトを取得します。\n                - `meshCode` は任意の次元（例: 250m など）のメッシュコードを指定可能。該当がなければ `null` が返ります。\n\n                例:\n                - 人口5次メッシュ（250m）の一枚を取得:\n                dataset_id=\"dpf_population_data\",\n                data_id=\"8fb65cb6-a7e3-4b15-bf17-1c71be572a9f\",\n                mesh_id=\"national_sensus_250m_r2\",\n                mesh_code=\"5339452932\"\n\n                - 事前に `search` で必要パラメータを取得:\n                term=\"人口及び世帯\" → 結果の `dataset_id`, `id`, `meshes[].id` を本APIに転用\n\n                注意:\n                - GraphQL定義は `mesh(dataSetID:String!, dataID:String!, meshID:String!, meshCode:String!): JSONObject`。\n                返却はJSONオブジェクトで、メッシュコードや指標（例: 総人口 等）が含まれます。該当しない場合は `null`。:contentReference[oaicite:1]{index=1}\n                - `meshCode` の粒度は自由ですが、データ側に該当レコードが存在しないと取得できません（空振り時は `null`）。:contentReference[oaicite:2]{index=2}\n                - 必要な `meshID` は `search` レスポンスの `meshes` 配列から選びます（例: \"national_sensus_250m_r2\"）。:contentReference[oaicite:3]{index=3}\n                - 利用にはMLIT DPFのGraphQLエンドポイントとAPIキーが必要です。:contentReference[oaicite:4]{index=4}",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "dataset_id": {
+            "type": "string",
+            "description": "データセットID"
+          },
+          "data_id": {
+            "type": "string",
+            "description": "データID"
+          },
+          "mesh_id": {
+            "type": "string",
+            "description": "メッシュID"
+          },
+          "mesh_code": {
+            "type": "string",
+            "description": "メッシュコード(標準地域メッシュコード)"
+          }
+        },
+        "required": [
+          "dataset_id",
+          "data_id",
+          "mesh_id",
+          "mesh_code"
+        ]
+      }
+    },
+    {
+      "name": "get_file_download_urls",
+      "description": "ファイルのダウンロード用URLを取得する。取得したURLがhttps://data-platform.mlit.go.jp/download/で始まる場合、URLの有効期限は60秒。\n\n                使い方:\n                - 事前に search / data API で対象データの `files`（id, original_path）を取得してから、本APIでダウンロードURLを生成します。\n                - 本ツールは2通りに対応:\n                (A) `files=[{id, original_path}, ...]` を直接渡す\n                (B) `dataset_id` と `data_id` を渡す（ツール側で対象データの `files` を読み取り、一括でURL化）\n\n                例:\n                - 単一ファイルのURLを取得（直接指定）:\n                files=[{ id:\"<filesのid>\", original_path:\"INDEX_C.XML\" }]\n\n                - データIDから付属ファイルのURL一覧を取得（簡易）:\n                dataset_id=\"cals_construction\", data_id=\"<searchで取得したid>\"\n\n                注意:\n                - `id` と `original_path` は、まず search / data のレスポンスに含まれる `DataClass.files` から取得してください。\n                - 取得したURLが `https://data-platform.mlit.go.jp/download/` で始まる場合、**60秒以内にダウンロード開始**が必要です（期限切れに注意）。\n                - 連携元サイトで直接ダウンロードできる場合は、メタデータ `DPF:downloadURLs` / `DPF:dataURLs` も併用してください。\n                - `original_path` を省略すると、付属ファイルの元ファイル名・パスが用いられます（files.original_pathを参照）。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "ファイルID。get_dataの結果から取得"
+                },
+                "original_path": {
+                  "type": "string",
+                  "description": "元のファイルパス。get_dataの結果から取得"
+                }
+              },
+              "required": [
+                "id",
+                "original_path"
+              ]
+            },
+            "description": "ダウンロードするファイルの配列。dataset_id+data_idを指定する場合は省略可能"
+          },
+          "dataset_id": {
+            "type": "string",
+            "description": "データセットID。filesを省略する場合は必須"
+          },
+          "data_id": {
+            "type": "string",
+            "description": "データID。filesを省略する場合は必須"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_zipfile_download_url",
+      "description": "複数の付属ファイルをZIP形式で圧縮し、圧縮ファイルのダウンロードURLを取得する。URLの有効期限は60秒。\n\n                使い方:\n                - まとめて取得したい複数ファイルの `id` と、ZIP内に格納する `original_path`（パス）を指定します。\n                - search / data で取得した `files` から必要な id / original_path を選択して投入してください。\n                - 本ツールは2通りに対応:\n                (A) `files=[{id, original_path}, ...]` を直接渡す\n                (B) `dataset_id` と `data_id` を渡す（ツール側で `files` を参照しZIP作成）\n\n                例:\n                - IFCを3本まとめてZIPで取得:\n                files=[\n                    { id:\"<id1>\", original_path:\"ICON/.../モデルA.ifc\" },\n                    { id:\"<id2>\", original_path:\"ICON/.../モデルB.ifc\" },\n                    { id:\"<id3>\", original_path:\"ICON/.../モデルC.ifc\" },\n                ]\n\n                - データIDから付属ファイルをZIP化（簡易）:\n                dataset_id=\"cals_construction\", data_id=\"<searchで取得したid>\"\n\n                注意:\n                - ZIPのダウンロードURLは **60秒間のみ有効** です。取得後すぐにダウンロード処理を開始してください。\n                - GraphQLは `zipfileDownloadURL(files:[FileInputClass]): String`。`files` の `id` / `original_path` は `DataClass.files` を用います。\n                - 大容量ZIPはクライアント側のタイムアウト設定にも注意してください。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "ファイルID"
+                },
+                "original_path": {
+                  "type": "string",
+                  "description": "元のファイルパス"
+                }
+              },
+              "required": [
+                "id",
+                "original_path"
+              ]
+            },
+            "description": "ZIP化するファイルの配列"
+          },
+          "dataset_id": {
+            "type": "string",
+            "description": "データセットID"
+          },
+          "data_id": {
+            "type": "string",
+            "description": "データID"
+          }
+        }
+      }
+    },
+    {
+      "name": "get_thumbnail_urls",
+      "description": "データのサムネイル画像URLを取得する。取得したURLがhttps://data-platform.mlit.go.jp/download/で始まる場合、URLの有効期限は60秒。\n\n                使い方:\n                - 基本: dataset_id と data_id を指定して、そのデータに紐づくサムネイルURL一覧を取得します。\n                - ファイル個別のサムネイルが欲しい場合は、search/data 結果から取得した file の id を使って絞り込みます（GraphQLの fileID に相当）。\n                - 本ツールは2通りに対応:\n                (A) thumbnails=[{id, original_path}, ...] を直接渡す（既にファイル情報を持っている場合に高速）\n                (B) dataset_id と data_id を渡す（ツール側で対象データのサムネイルを探索）\n\n                例:\n                - データIDからサムネイルのURL一覧を取得:\n                dataset_id=\"ndm\", data_id=\"<searchで取得したid>\"\n\n                - 特定ファイルのサムネイルを取得（直接指定）:\n                thumbnails=[{ id:\"<fileのid>\", original_path:\"<元ファイルの相対パス>\" }]\n\n                注意:\n                - 取得したURLが download ドメインで始まる場合は **60秒以内にダウンロード開始**が必要です（期限切れに注意）。\n                - サムネイルが存在しないデータは **空配列** が返ります。\n                - fileID を指定しない場合はデータに紐づく代表サムネイル等が返ります。必要に応じてファイルIDで絞り込んでください。\n                - レスポンスは配列で、各要素は fileName / URL を含みます（GraphQL: thumbnailURLs）。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "thumbnails": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "サムネイルID"
+                },
+                "original_path": {
+                  "type": "string",
+                  "description": "元のファイルパス"
+                }
+              },
+              "required": [
+                "id",
+                "original_path"
+              ]
+            },
+            "description": "取得するサムネイルの配列"
+          },
+          "dataset_id": {
+            "type": "string",
+            "description": "データセットID"
+          },
+          "data_id": {
+            "type": "string",
+            "description": "データID"
+          }
+        }
+      }
+    },
+    {
+      "name": "normalize_codes",
+      "description": "入力された都道府県名・市区町村名を正規化し、正式なコードと名称を取得する。\n\n                使用ケース:\n                1. ユーザー入力('東京', 'Tokyo', '13')を正規化 → '13' + '東京都'\n                2. 市区町村名から5桁コードを取得\n                3. 曖昧な入力の候補一覧取得\n\n                このツールを他の検索ツールの前に実行することで、正確なprefecture_code/municipality_codeを取得できます",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "prefecture": {
+            "type": "string",
+            "description": "都道府県の指定。以下の形式に対応:\n                        - コード: '13', '27'\n                        - 日本語: '東京都', '東京', '大阪府', '大阪'\n                        - ローマ字: 'Tokyo', 'Osaka', 'Hokkaido'\n\n                        全角数字(例: '１３')も自動的に正規化されます"
+          },
+          "municipality": {
+            "type": "string",
+            "description": "市区町村の指定。以下の形式に対応:\n                        - JISコード: '13101' (千代田区)\n                        - 日本語: '千代田区', '港区'\n\n                        注意: 市区町村を指定する場合、prefectureも併せて指定することを推奨します(同名の市区町村が複数存在する可能性があるため)"
+          }
+        }
+      }
+    }
+  ]
+}

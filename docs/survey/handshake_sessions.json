@@ -1,0 +1,248 @@
+{
+  "new_spec": {
+    "sent_protocolVersion": "2026-07-28",
+    "exit_code": 0,
+    "stderr": [],
+    "responses": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2025-11-25",
+          "capabilities": {
+            "experimental": {},
+            "tools": {
+              "listChanged": false
+            }
+          },
+          "serverInfo": {
+            "name": "mlit-mcp",
+            "version": "0.1.0"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "method": "tools/list",
+        "result_keys": [
+          "tools"
+        ],
+        "tool_count": 18,
+        "tool_names": [
+          "search",
+          "search_by_location_rectangle",
+          "search_by_location_point_distance",
+          "search_by_attribute",
+          "get_data_summary",
+          "get_data",
+          "get_data_catalog_summary",
+          "get_data_catalog",
+          "get_prefecture_data",
+          "get_municipality_data",
+          "get_all_data",
+          "get_suggest",
+          "get_count_data",
+          "get_mesh",
+          "get_file_download_urls",
+          "get_zipfile_download_url",
+          "get_thumbnail_urls",
+          "normalize_codes"
+        ],
+        "note": "full payload in tools_list_raw.json"
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "error": {
+          "code": -32601,
+          "message": "Method not found"
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "error": {
+          "code": -32601,
+          "message": "Method not found"
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Config error: set ENV MLIT_API_KEY (and optionally MLIT_BASE_URL)."
+            }
+          ],
+          "isError": true
+        }
+      }
+    ]
+  },
+  "mid_spec": {
+    "sent_protocolVersion": "2025-06-18",
+    "exit_code": 0,
+    "stderr": [],
+    "responses": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2025-06-18",
+          "capabilities": {
+            "experimental": {},
+            "tools": {
+              "listChanged": false
+            }
+          },
+          "serverInfo": {
+            "name": "mlit-mcp",
+            "version": "0.1.0"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "method": "tools/list",
+        "result_keys": [
+          "tools"
+        ],
+        "tool_count": 18,
+        "tool_names": [
+          "search",
+          "search_by_location_rectangle",
+          "search_by_location_point_distance",
+          "search_by_attribute",
+          "get_data_summary",
+          "get_data",
+          "get_data_catalog_summary",
+          "get_data_catalog",
+          "get_prefecture_data",
+          "get_municipality_data",
+          "get_all_data",
+          "get_suggest",
+          "get_count_data",
+          "get_mesh",
+          "get_file_download_urls",
+          "get_zipfile_download_url",
+          "get_thumbnail_urls",
+          "normalize_codes"
+        ],
+        "note": "full payload in tools_list_raw.json"
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "error": {
+          "code": -32601,
+          "message": "Method not found"
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "error": {
+          "code": -32601,
+          "message": "Method not found"
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Config error: set ENV MLIT_API_KEY (and optionally MLIT_BASE_URL)."
+            }
+          ],
+          "isError": true
+        }
+      }
+    ]
+  },
+  "old_spec": {
+    "sent_protocolVersion": "2024-11-05",
+    "exit_code": 0,
+    "stderr": [],
+    "responses": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2024-11-05",
+          "capabilities": {
+            "experimental": {},
+            "tools": {
+              "listChanged": false
+            }
+          },
+          "serverInfo": {
+            "name": "mlit-mcp",
+            "version": "0.1.0"
+          }
+        }
+      },
+      {
+        "id": 2,
+        "method": "tools/list",
+        "result_keys": [
+          "tools"
+        ],
+        "tool_count": 18,
+        "tool_names": [
+          "search",
+          "search_by_location_rectangle",
+          "search_by_location_point_distance",
+          "search_by_attribute",
+          "get_data_summary",
+          "get_data",
+          "get_data_catalog_summary",
+          "get_data_catalog",
+          "get_prefecture_data",
+          "get_municipality_data",
+          "get_all_data",
+          "get_suggest",
+          "get_count_data",
+          "get_mesh",
+          "get_file_download_urls",
+          "get_zipfile_download_url",
+          "get_thumbnail_urls",
+          "normalize_codes"
+        ],
+        "note": "full payload in tools_list_raw.json"
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "error": {
+          "code": -32601,
+          "message": "Method not found"
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "error": {
+          "code": -32601,
+          "message": "Method not found"
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "Config error: set ENV MLIT_API_KEY (and optionally MLIT_BASE_URL)."
+            }
+          ],
+          "isError": true
+        }
+      }
+    ]
+  }
+}

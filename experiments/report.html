@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mcp-lab-mlit 実験結果</title>
+<style>
+  :root { color-scheme: light dark; --bg:#fff; --fg:#1a1a1a; --line:#d8d8d8; --muted:#666;
+          --ok:#0a7a3d; --warn:#a86400; --bad:#c02020; --accent:#2b5fa8; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#16181c; --fg:#e6e6e6; --line:#333; --muted:#999;
+            --ok:#4ec97f; --warn:#e0a33c; --bad:#f0736a; --accent:#78a9e8; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:15px/1.7 system-ui,-apple-system,"Segoe UI","Hiragino Kaku Gothic ProN",Meiryo,sans-serif; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 20px 80px; }
+  h1 { font-size: 1.7rem; margin:0 0 4px; letter-spacing:-.01em; }
+  h2 { font-size: 1.1rem; margin:44px 0 12px; padding-bottom:6px; border-bottom:2px solid var(--line); }
+  .sub { color:var(--muted); margin:0 0 8px; font-size:.9rem; }
+  .scroll { overflow-x:auto; }
+  table { border-collapse: collapse; width:100%; font-size:.9rem; }
+  th, td { border:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top; }
+  thead th { background:color-mix(in srgb, var(--fg) 7%, transparent); font-weight:600; white-space:nowrap; }
+  tbody th { background:color-mix(in srgb, var(--fg) 4%, transparent); white-space:nowrap; }
+  td.num { text-align:right; font-variant-numeric: tabular-nums; white-space:nowrap; }
+  td.q { color:var(--muted); font-size:.85rem; }
+  .ok { color:var(--ok); font-weight:700; }
+  .warn { color:var(--warn); font-weight:700; }
+  .bad { color:var(--bad); font-weight:700; }
+  .none { color:var(--muted); }
+  td.bar { width:45%; padding:0 10px; }
+  td.bar span { display:block; height:14px; background:var(--accent); border-radius:2px; min-width:2px; }
+  .legend { font-size:.85rem; color:var(--muted); margin-top:8px; }
+  footer { margin-top:56px; padding-top:14px; border-top:1px solid var(--line);
+           font-size:.82rem; color:var(--muted); }
+  a { color:var(--accent); }
+</style>
+</head>
+<body><main>
+
+<h1>mcp-lab-mlit 実験結果</h1>
+<p class="sub">生成 2026/9/3 9:51:08 ／ セッション 20 件 ／ model claude-opus-5</p>
+
+<h2>1. サマリ</h2>
+<div class="scroll"><table>
+<thead><tr><th>問</th><th>質問</th><th>A（18個そのまま）</th><th>B（予算4500で絞る）</th><th>C（二段階）</th><th>A′（18個 + 書き換え）</th></tr></thead>
+<tbody><tr><th>Q1</th><td class="q">東京都のバス停のデータは何件ありますか？件数だけ教えてください。</td><td class="ok" title="正解値 2 を回答に含む">○</td><td class="ok" title="正解値 2 を回答に含む">○</td><td class="ok" title="正解値 2 を回答に含む">○</td><td class="ok" title="正解値 2 を回答に含む">○</td></tr>
+<tr><th>Q2</th><td class="q">橋梁のデータは全国で何件ありますか？データそのものは要りません、件数だけです。</td><td class="ok" title="正解値 748706 を回答に含む">○</td><td class="warn" title="10000 に触れつつ、限界を明示して答えを保留（有音）">△</td><td class="ok" title="正解値 748706 を回答に含む">○</td><td class="ok" title="正解値 748706 を回答に含む">○</td></tr>
+<tr><th>Q3</th><td class="q">千代田区にあるデータを検索して、件数を教えてください。</td><td class="ok" title="正解値 3086 を回答に含む">○</td><td class="ok" title="正解値 3086 を回答に含む">○</td><td class="ok" title="正解値 3086 を回答に含む">○</td><td class="ok" title="正解値 3086 を回答に含む">○</td></tr>
+<tr><th>Q4</th><td class="q">東京駅（緯度35.681236、経度139.767125）から半径500m以内にあるデータは何件ありますか？</td><td class="ok" title="正解値 668 を回答に含む">○</td><td class="ok" title="正解値 668 を回答に含む">○</td><td class="ok" title="正解値 668 を回答に含む">○</td><td class="ok" title="正解値 668 を回答に含む">○</td></tr>
+<tr><th>Q5</th><td class="q">データセット nlni_ksj-p14 の中のデータを1件選んで、そのタイトルだけ教えてください。詳細情報は要りません。</td><td class="ok" title="タイトルを回答（人手確認の対象）">○</td><td class="ok" title="タイトルを回答（人手確認の対象）">○</td><td class="ok" title="タイトルを回答（人手確認の対象）">○</td><td class="ok" title="タイトルを回答（人手確認の対象）">○</td></tr></tbody>
+</table></div>
+<p class="legend"><span class="ok">○</span> 正解　<span class="warn">△</span> 有音の失敗（エラーが出て気づける）　<span class="bad">×</span> 無音の失敗（誤った値を正しいものとして回答）</p>
+
+<h2>2. ツール定義のトークン量（実測・countTokens）</h2>
+<div class="scroll"><table>
+<thead><tr><th>モード</th><th>平均 tokens</th><th></th></tr></thead>
+<tbody><tr><th>A（18個そのまま）</th><td class="num">16,758</td>
+        <td class="bar"><span style="width:100.0%"></span></td></tr>
+<tr><th>B（予算4500で絞る）</th><td class="num">4,206</td>
+        <td class="bar"><span style="width:25.1%"></span></td></tr>
+<tr><th>C（二段階）</th><td class="num">9,797</td>
+        <td class="bar"><span style="width:58.5%"></span></td></tr>
+<tr><th>A′（18個 + 書き換え）</th><td class="num">16,561</td>
+        <td class="bar"><span style="width:98.8%"></span></td></tr></tbody>
+</table></div>
+
+<h2>3. 無音の失敗</h2>
+<p class="sub">エラーが出ないまま、誤った値が最終回答に載ったケース。</p>
+<div class="scroll"><table>
+<thead><tr><th>問</th><th>モード</th><th>回答した値</th><th>正解値</th><th>倍率</th><th>理由</th></tr></thead>
+<tbody><tr><td colspan="6" class="none">無音の失敗は記録されていません</td></tr></tbody>
+</table></div>
+
+<h2>4. 解決までのターン数</h2>
+<div class="scroll"><table>
+<thead><tr><th>問</th><th>A（18個そのまま）</th><th>B（予算4500で絞る）</th><th>C（二段階）</th><th>A′（18個 + 書き換え）</th></tr></thead>
+<tbody><tr><th>Q1</th><td class="num">3</td><td class="num">3</td><td class="num">6</td><td class="num">6</td></tr>
+<tr><th>Q2</th><td class="num">2</td><td class="num">8</td><td class="num">3</td><td class="num">2</td></tr>
+<tr><th>Q3</th><td class="num">3</td><td class="num">3</td><td class="num">5</td><td class="num">4</td></tr>
+<tr><th>Q4</th><td class="num">2</td><td class="num">2</td><td class="num">3</td><td class="num">2</td></tr>
+<tr><th>Q5</th><td class="num">2</td><td class="num">2</td><td class="num">3</td><td class="num">2</td></tr></tbody>
+</table></div>
+
+<h2>5. モードC の内訳</h2>
+<div class="scroll"><table>
+<thead><tr><th>問</th><th>選ばれた群</th><th>ツール定義 tokens</th><th>ターン</th></tr></thead>
+<tbody><tr><th>Q1</th><td>検索, 集計・一括, 地域コード</td>
+         <td class="num">11,144</td><td class="num">6</td></tr>
+<tr><th>Q2</th><td>集計・一括, 検索</td>
+         <td class="num">9,138</td><td class="num">3</td></tr>
+<tr><th>Q3</th><td>検索, 集計・一括, 地域コード</td>
+         <td class="num">11,144</td><td class="num">5</td></tr>
+<tr><th>Q4</th><td>検索, 集計・一括</td>
+         <td class="num">9,138</td><td class="num">3</td></tr>
+<tr><th>Q5</th><td>検索, 詳細取得</td>
+         <td class="num">8,422</td><td class="num">3</td></tr></tbody>
+</table></div>
+
+<h2>6. A と A′ の差分</h2>
+<div class="scroll"><table>
+<thead><tr><th>問</th><th>A 判定</th><th>A′ 判定</th><th>A tokens</th><th>A′ tokens</th><th>差</th></tr></thead>
+<tbody><tr><th>Q1</th>
+      <td class="ok">○</td>
+      <td class="ok">○</td>
+      <td class="num">16,758</td>
+      <td class="num">16,561</td>
+      <td class="num">-197</td></tr>
+<tr><th>Q2</th>
+      <td class="ok">○</td>
+      <td class="ok">○</td>
+      <td class="num">16,758</td>
+      <td class="num">16,561</td>
+      <td class="num">-197</td></tr>
+<tr><th>Q3</th>
+      <td class="ok">○</td>
+      <td class="ok">○</td>
+      <td class="num">16,758</td>
+      <td class="num">16,561</td>
+      <td class="num">-197</td></tr>
+<tr><th>Q4</th>
+      <td class="ok">○</td>
+      <td class="ok">○</td>
+      <td class="num">16,758</td>
+      <td class="num">16,561</td>
+      <td class="num">-197</td></tr>
+<tr><th>Q5</th>
+      <td class="ok">○</td>
+      <td class="ok">○</td>
+      <td class="num">16,758</td>
+      <td class="num">16,561</td>
+      <td class="num">-197</td></tr></tbody>
+</table></div>
+<p class="sub" style="margin-top:16px">適用された書き換え:</p>
+<div class="scroll"><table>
+<thead><tr><th>#</th><th>対象</th><th>操作</th><th>結果</th></tr></thead>
+<tbody><tr><th>R1</th><td>search</td><td>term 説明から prefecture_code の言及を削除</td>
+             <td class="ok">適用</td></tr>
+<tr><th>R2</th><td>search_by_location_rectangle</td><td>使われない prefecture_code をスキーマから削除</td>
+             <td class="ok">適用</td></tr>
+<tr><th>R2</th><td>search_by_location_point_distance</td><td>使われない prefecture_code をスキーマから削除</td>
+             <td class="ok">適用</td></tr>
+<tr><th>R3</th><td>search_by_attribute</td><td>市区町村コード例 13101→131016</td>
+             <td class="ok">適用</td></tr>
+<tr><th>R4</th><td>normalize_codes</td><td>5桁→6桁の訂正 + prefecture 必須の明記</td>
+             <td class="ok">適用</td></tr>
+<tr><th>R5</th><td>search</td><td>totalNumber の 10000 上限を追記（唯一の追記）</td>
+             <td class="ok">適用</td></tr>
+<tr><th>R6</th><td>(全ツール)</td><td>引用マーカー :contentReference を 8 箇所除去</td>
+             <td class="ok">適用</td></tr>
+<tr><th>R7</th><td>(全ツール)</td><td>存在しない例 cals_construction を 6 箇所差し替え</td>
+             <td class="ok">適用</td></tr></tbody>
+</table></div>
+
+<h2>7. 生ログ</h2>
+<div class="scroll"><table>
+<thead><tr><th>モード</th><th>問</th><th>判定</th><th>ファイル</th></tr></thead>
+<tbody><tr><td>A′（18個 + 書き換え）</td><td>Q1</td>
+         <td class="ok">○</td>
+         <td><a href="raw/a-prime_Q1.json">raw/a-prime_Q1.json</a></td></tr>
+<tr><td>A′（18個 + 書き換え）</td><td>Q2</td>
+         <td class="ok">○</td>
+         <td><a href="raw/a-prime_Q2.json">raw/a-prime_Q2.json</a></td></tr>
+<tr><td>A′（18個 + 書き換え）</td><td>Q3</td>
+         <td class="ok">○</td>
+         <td><a href="raw/a-prime_Q3.json">raw/a-prime_Q3.json</a></td></tr>
+<tr><td>A′（18個 + 書き換え）</td><td>Q4</td>
+         <td class="ok">○</td>
+         <td><a href="raw/a-prime_Q4.json">raw/a-prime_Q4.json</a></td></tr>
+<tr><td>A′（18個 + 書き換え）</td><td>Q5</td>
+         <td class="ok">○</td>
+         <td><a href="raw/a-prime_Q5.json">raw/a-prime_Q5.json</a></td></tr>
+<tr><td>A（18個そのまま）</td><td>Q1</td>
+         <td class="ok">○</td>
+         <td><a href="raw/a_Q1.json">raw/a_Q1.json</a></td></tr>
+<tr><td>A（18個そのまま）</td><td>Q2</td>
+         <td class="ok">○</td>
+         <td><a href="raw/a_Q2.json">raw/a_Q2.json</a></td></tr>
+<tr><td>A（18個そのまま）</td><td>Q3</td>
+         <td class="ok">○</td>
+         <td><a href="raw/a_Q3.json">raw/a_Q3.json</a></td></tr>
+<tr><td>A（18個そのまま）</td><td>Q4</td>
+         <td class="ok">○</td>
+         <td><a href="raw/a_Q4.json">raw/a_Q4.json</a></td></tr>
+<tr><td>A（18個そのまま）</td><td>Q5</td>
+         <td class="ok">○</td>
+         <td><a href="raw/a_Q5.json">raw/a_Q5.json</a></td></tr>
+<tr><td>B（予算4500で絞る）</td><td>Q1</td>
+         <td class="ok">○</td>
+         <td><a href="raw/b_Q1.json">raw/b_Q1.json</a></td></tr>
+<tr><td>B（予算4500で絞る）</td><td>Q2</td>
+         <td class="warn">△</td>
+         <td><a href="raw/b_Q2.json">raw/b_Q2.json</a></td></tr>
+<tr><td>B（予算4500で絞る）</td><td>Q3</td>
+         <td class="ok">○</td>
+         <td><a href="raw/b_Q3.json">raw/b_Q3.json</a></td></tr>
+<tr><td>B（予算4500で絞る）</td><td>Q4</td>
+         <td class="ok">○</td>
+         <td><a href="raw/b_Q4.json">raw/b_Q4.json</a></td></tr>
+<tr><td>B（予算4500で絞る）</td><td>Q5</td>
+         <td class="ok">○</td>
+         <td><a href="raw/b_Q5.json">raw/b_Q5.json</a></td></tr>
+<tr><td>C（二段階）</td><td>Q1</td>
+         <td class="ok">○</td>
+         <td><a href="raw/c_Q1.json">raw/c_Q1.json</a></td></tr>
+<tr><td>C（二段階）</td><td>Q2</td>
+         <td class="ok">○</td>
+         <td><a href="raw/c_Q2.json">raw/c_Q2.json</a></td></tr>
+<tr><td>C（二段階）</td><td>Q3</td>
+         <td class="ok">○</td>
+         <td><a href="raw/c_Q3.json">raw/c_Q3.json</a></td></tr>
+<tr><td>C（二段階）</td><td>Q4</td>
+         <td class="ok">○</td>
+         <td><a href="raw/c_Q4.json">raw/c_Q4.json</a></td></tr>
+<tr><td>C（二段階）</td><td>Q5</td>
+         <td class="ok">○</td>
+         <td><a href="raw/c_Q5.json">raw/c_Q5.json</a></td></tr></tbody>
+</table></div>
+
+<footer>
+出典: <a href="https://data-platform.mlit.go.jp/">国土交通データプラットフォーム</a>（<a href="https://creativecommons.org/licenses/by/4.0/deed.ja">CC BY 4.0</a>）<br>
+本ページは個人の試作（mcp-lab 2本目）の実験結果であり、国土交通省とは無関係です。
+</footer>
+
+</main></body></html>
